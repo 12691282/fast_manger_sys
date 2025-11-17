@@ -3,20 +3,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.zhengjie</groupId>
-    <artifactId>eladmin</artifactId>
+    <artifactId>admin</artifactId>
     <packaging>pom</packaging>
     <version>2.7</version>
 
     <modules>
-        <module>eladmin-common</module>
-        <module>eladmin-logging</module>
-        <module>eladmin-system</module>
-        <module>eladmin-tools</module>
-        <module>eladmin-generator</module>
+        <module>admin-common</module>
+        <module>admin-logging</module>
+        <module>admin-system</module>
+        <module>admin-tools</module>
+        <module>admin-generator</module>
     </modules>
 
-    <name>ELADMIN 后台管理</name>
-    <url>https://eladmin.vip</url>
+    <name>ADMIN 后台管理</name>
+    <url>https://admin</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
