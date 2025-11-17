@@ -21,10 +21,7 @@ import lombok.Setter;
 import me.zhengjie.base.BaseDTO;
 import java.io.Serializable;
 
-/**
-* @author zhanghouying
-* @date 2019-08-24
-*/
+
 @Getter
 @Setter
 public class DatabaseDto extends BaseDTO implements Serializable {

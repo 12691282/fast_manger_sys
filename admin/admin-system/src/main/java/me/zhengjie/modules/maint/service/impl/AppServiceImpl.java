@@ -32,10 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
-/**
-* @author zhanghouying
-* @date 2019-08-24
-*/
 @Service
 @RequiredArgsConstructor
 public class AppServiceImpl implements AppService {

@@ -22,10 +22,7 @@ import me.zhengjie.base.BaseDTO;
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
-* @author zhanghouying
-* @date 2019-08-24
-*/
+
 @Getter
 @Setter
 public class ServerDeployDto extends BaseDTO implements Serializable {

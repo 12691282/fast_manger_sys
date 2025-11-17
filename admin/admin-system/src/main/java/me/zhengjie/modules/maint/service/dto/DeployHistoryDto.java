@@ -20,10 +20,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-/**
-* @author zhanghouying
-* @date 2019-08-24
-*/
+
 @Data
 public class DeployHistoryDto implements Serializable {
 

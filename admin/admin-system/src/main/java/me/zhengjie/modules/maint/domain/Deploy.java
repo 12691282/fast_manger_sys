@@ -25,10 +25,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Set;
 
-/**
-* @author zhanghouying
-* @date 2019-08-24
-*/
 @Entity
 @Getter
 @Setter

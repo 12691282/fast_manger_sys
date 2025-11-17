@@ -34,10 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
-/**
-* @author zhanghouying
-* @date 2019-08-24
-*/
+
 @RestController
 @Api(tags = "运维：服务器管理")
 @RequiredArgsConstructor
