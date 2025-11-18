@@ -24,7 +24,6 @@ import me.zhengjie.modules.security.config.enums.LoginCodeEnum;
 import me.zhengjie.utils.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
 import java.awt.*;
 
 /**

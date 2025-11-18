@@ -21,6 +21,7 @@ import cn.hutool.core.util.IdUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.modules.security.config.SecurityProperties;
 import me.zhengjie.modules.security.service.dto.JwtUserDto;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TokenProvider implements InitializingBean {
 
     private Key signingKey;
@@ -48,11 +50,6 @@ public class TokenProvider implements InitializingBean {
     private final SecurityProperties properties;
     public static final String AUTHORITIES_UUID_KEY = "uid";
     public static final String AUTHORITIES_UID_KEY = "userId";
-
-    public TokenProvider(SecurityProperties properties, RedisUtils redisUtils) {
-        this.properties = properties;
-        this.redisUtils = redisUtils;
-    }
 
     @Override
     public void afterPropertiesSet() {
@@ -68,7 +65,6 @@ public class TokenProvider implements InitializingBean {
     /**
      * 创建Token 设置永不过期，
      * Token 的时间有效性转到Redis 维护
-     *
      * @param user /
      * @return /
      */
@@ -144,12 +140,12 @@ public class TokenProvider implements InitializingBean {
     }
 
     /**
-     * 获取登录用户TokenKey
+     * 获取会话编号
      * @param token /
      * @return /
      */
     public String getId(String token) {
         Claims claims = getClaims(token);
-        return claims.get(AUTHORITIES_UUID_KEY).toString();
+        return claims.get(AUTHORITIES_UUID_KEY, String.class);
     }
 }

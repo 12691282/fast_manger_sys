@@ -16,13 +16,18 @@
 package me.zhengjie.modules.system.domain;
 
 import com.alibaba.fastjson2.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import me.zhengjie.base.BaseEntity;
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -30,28 +35,28 @@ import java.util.Set;
  * @author Zheng Jie
  * @date 2018-12-17
  */
-@Entity
 @Getter
 @Setter
-@Table(name = "sys_menu")
+@TableName("sys_menu")
 public class Menu extends BaseEntity implements Serializable {
 
-    @Id
-    @Column(name = "menu_id")
     @NotNull(groups = {Update.class})
+    @TableId(value="menu_id", type = IdType.AUTO)
     @ApiModelProperty(value = "ID", hidden = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @TableField(exist = false)
     @JSONField(serialize = false)
-    @ManyToMany(mappedBy = "menus")
     @ApiModelProperty(value = "菜单角色")
     private Set<Role> roles;
+
+    @TableField(exist = false)
+    private List<Menu> children;
 
     @ApiModelProperty(value = "菜单标题")
     private String title;
 
-    @Column(name = "name")
+    @TableField(value = "name")
     @ApiModelProperty(value = "菜单组件名称")
     private String componentName;
 
@@ -73,11 +78,9 @@ public class Menu extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "菜单图标")
     private String icon;
 
-    @Column(columnDefinition = "bit(1) default 0")
     @ApiModelProperty(value = "缓存")
     private Boolean cache;
 
-    @Column(columnDefinition = "bit(1) default 0")
     @ApiModelProperty(value = "是否隐藏")
     private Boolean hidden;
 
@@ -88,6 +91,7 @@ public class Menu extends BaseEntity implements Serializable {
     private Integer subCount = 0;
 
     @ApiModelProperty(value = "外链菜单")
+    @JsonProperty("iFrame")
     private Boolean iFrame;
 
     @Override
@@ -105,5 +109,20 @@ public class Menu extends BaseEntity implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @ApiModelProperty(value = "是否有子节点")
+    public Boolean getHasChildren() {
+        return subCount > 0;
+    }
+
+    @ApiModelProperty(value = "是否为叶子")
+    public Boolean getLeaf() {
+        return subCount <= 0;
+    }
+
+    @ApiModelProperty(value = "标签名称")
+    public String getLabel() {
+        return title;
     }
 }

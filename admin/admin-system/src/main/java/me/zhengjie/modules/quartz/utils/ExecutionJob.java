@@ -19,10 +19,10 @@ import cn.hutool.extra.template.Template;
 import cn.hutool.extra.template.TemplateConfig;
 import cn.hutool.extra.template.TemplateEngine;
 import cn.hutool.extra.template.TemplateUtil;
-import me.zhengjie.domain.vo.EmailVo;
+import me.zhengjie.domain.dto.EmailDto;
 import me.zhengjie.modules.quartz.domain.QuartzJob;
 import me.zhengjie.modules.quartz.domain.QuartzLog;
-import me.zhengjie.modules.quartz.repository.QuartzLogRepository;
+import me.zhengjie.modules.quartz.mapper.QuartzLogMapper;
 import me.zhengjie.modules.quartz.service.QuartzJobService;
 import me.zhengjie.service.EmailService;
 import me.zhengjie.utils.RedisUtils;
@@ -46,17 +46,15 @@ public class ExecutionJob extends QuartzJobBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     // 此处仅供参考，可根据任务执行情况自定义线程池参数
     private final ThreadPoolTaskExecutor executor = SpringBeanHolder.getBean("taskAsync");
-
 
     @Override
     public void executeInternal(JobExecutionContext context) {
         // 获取任务
         QuartzJob quartzJob = (QuartzJob) context.getMergedJobDataMap().get(QuartzJob.JOB_KEY);
         // 获取spring bean
-        QuartzLogRepository quartzLogRepository = SpringBeanHolder.getBean(QuartzLogRepository.class);
+        QuartzLogMapper quartzLogMapper = SpringBeanHolder.getBean(QuartzLogMapper.class);
         QuartzJobService quartzJobService = SpringBeanHolder.getBean(QuartzJobService.class);
         RedisUtils redisUtils = SpringBeanHolder.getBean(RedisUtils.class);
 
@@ -100,34 +98,34 @@ public class ExecutionJob extends QuartzJobBean {
             log.setExceptionDetail(ThrowableUtil.getStackTrace(e));
             // 任务如果失败了则暂停
             if(quartzJob.getPauseAfterFailure() != null && quartzJob.getPauseAfterFailure()){
-                //更新状态
                 quartzJob.setIsPause(false);
+                //更新状态
                 quartzJobService.updateIsPause(quartzJob);
             }
             if(quartzJob.getEmail() != null){
                 EmailService emailService = SpringBeanHolder.getBean(EmailService.class);
                 // 邮箱报警
                 if(StringUtils.isNoneBlank(quartzJob.getEmail())){
-                    EmailVo emailVo = taskAlarm(quartzJob, ThrowableUtil.getStackTrace(e));
-                    emailService.send(emailVo, emailService.find());
+                    EmailDto emailDto = taskAlarm(quartzJob, ThrowableUtil.getStackTrace(e));
+                    emailService.send(emailDto, emailService.find());
                 }
             }
         } finally {
-            quartzLogRepository.save(log);
+            quartzLogMapper.insert(log);
         }
     }
 
-    private EmailVo taskAlarm(QuartzJob quartzJob, String msg) {
-        EmailVo emailVo = new EmailVo();
-        emailVo.setSubject("定时任务【"+ quartzJob.getJobName() +"】执行失败，请尽快处理！");
+    private EmailDto taskAlarm(QuartzJob quartzJob, String msg) {
+        EmailDto emailDto = new EmailDto();
+        emailDto.setSubject("定时任务【"+ quartzJob.getJobName() +"】执行失败，请尽快处理！");
         Map<String, Object> data = new HashMap<>(16);
         data.put("task", quartzJob);
         data.put("msg", msg);
         TemplateEngine engine = TemplateUtil.createEngine(new TemplateConfig("template", TemplateConfig.ResourceMode.CLASSPATH));
         Template template = engine.getTemplate("taskAlarm.ftl");
-        emailVo.setContent(template.render(data));
+        emailDto.setContent(template.render(data));
         List<String> emails = Arrays.asList(quartzJob.getEmail().split("[,，]"));
-        emailVo.setTos(emails);
-        return emailVo;
+        emailDto.setTos(emails);
+        return emailDto;
     }
 }

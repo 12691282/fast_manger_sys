@@ -15,46 +15,47 @@
  */
 package me.zhengjie.modules.maint.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.maint.domain.App;
-import me.zhengjie.modules.maint.repository.AppRepository;
+import me.zhengjie.modules.maint.domain.dto.AppQueryCriteria;
+import me.zhengjie.modules.maint.mapper.AppMapper;
+import me.zhengjie.modules.maint.mapper.DeployMapper;
+import me.zhengjie.modules.maint.mapper.DeployServerMapper;
 import me.zhengjie.modules.maint.service.AppService;
-import me.zhengjie.modules.maint.service.dto.AppDto;
-import me.zhengjie.modules.maint.service.dto.AppQueryCriteria;
-import me.zhengjie.modules.maint.service.mapstruct.AppMapper;
-import me.zhengjie.utils.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import me.zhengjie.utils.FileUtil;
+import me.zhengjie.utils.PageResult;
+import me.zhengjie.utils.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
+/**
+* @author zhanghouying
+* @date 2019-08-24
+*/
 @Service
 @RequiredArgsConstructor
-public class AppServiceImpl implements AppService {
+public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
 
-    private final AppRepository appRepository;
     private final AppMapper appMapper;
+    private final DeployMapper deployMapper;
+    private final DeployServerMapper deployServerMapper;
 
     @Override
-    public PageResult<AppDto> queryAll(AppQueryCriteria criteria, Pageable pageable){
-        Page<App> page = appRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder),pageable);
-        return PageUtil.toPage(page.map(appMapper::toDto));
+    public PageResult<App> queryAll(AppQueryCriteria criteria, Page<Object> page){
+        return PageUtil.toPage(appMapper.queryAll(criteria, page));
     }
 
     @Override
-    public List<AppDto> queryAll(AppQueryCriteria criteria){
-        return appMapper.toDto(appRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder)));
-    }
-
-    @Override
-    public AppDto findById(Long id) {
-        App app = appRepository.findById(id).orElseGet(App::new);
-        ValidationUtil.isNull(app.getId(),"App","id",id);
-        return appMapper.toDto(app);
+    public List<App> queryAll(AppQueryCriteria criteria){
+        return appMapper.queryAll(criteria);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class AppServiceImpl implements AppService {
             throw new IllegalArgumentException("非法的应用名称，请勿包含[; | &]等特殊字符");
         }
         verification(resources);
-        appRepository.save(resources);
+        save(resources);
     }
 
     @Override
@@ -78,10 +79,9 @@ public class AppServiceImpl implements AppService {
             throw new IllegalArgumentException("非法的应用名称，请勿包含[; | &]等特殊字符");
         }
         verification(resources);
-        App app = appRepository.findById(resources.getId()).orElseGet(App::new);
-        ValidationUtil.isNull(app.getId(),"App","id",resources.getId());
+        App app = getById(resources.getId());
         app.copy(resources);
-        appRepository.save(app);
+        saveOrUpdate(app);
     }
 
     private void verification(App resources){
@@ -101,24 +101,29 @@ public class AppServiceImpl implements AppService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
-        for (Long id : ids) {
-            appRepository.deleteById(id);
+        // 删除应用
+        removeBatchByIds(ids);
+        // 删除部署
+        Set<Long> deployIds = deployMapper.getIdByAppIds(ids);
+        if(CollUtil.isNotEmpty(deployIds)){
+            deployServerMapper.deleteByDeployIds(deployIds);
+            deployMapper.deleteBatchIds(deployIds);
         }
     }
 
     @Override
-    public void download(List<AppDto> queryAll, HttpServletResponse response) throws IOException {
+    public void download(List<App> apps, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
-        for (AppDto appDto : queryAll) {
+        for (App app : apps) {
             Map<String,Object> map = new LinkedHashMap<>();
-            map.put("应用名称", appDto.getName());
-            map.put("端口", appDto.getPort());
-            map.put("上传目录", appDto.getUploadPath());
-            map.put("部署目录", appDto.getDeployPath());
-            map.put("备份目录", appDto.getBackupPath());
-            map.put("启动脚本", appDto.getStartScript());
-            map.put("部署脚本", appDto.getDeployScript());
-            map.put("创建日期", appDto.getCreateTime());
+            map.put("应用名称", app.getName());
+            map.put("端口", app.getPort());
+            map.put("上传目录", app.getUploadPath());
+            map.put("部署目录", app.getDeployPath());
+            map.put("备份目录", app.getBackupPath());
+            map.put("启动脚本", app.getStartScript());
+            map.put("部署脚本", app.getDeployScript());
+            map.put("创建日期", app.getCreateTime());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

@@ -35,7 +35,7 @@ import java.util.List;
 public class SpringBeanHolder implements ApplicationContextAware, DisposableBean {
 
     private static ApplicationContext applicationContext = null;
-    private static final List<SpringBeanHolder.CallBack> CALL_BACKS = new ArrayList<>();
+    private static final List<CallBack> CALL_BACKS = new ArrayList<>();
     private static boolean addCallback = true;
 
     /**
@@ -44,7 +44,7 @@ public class SpringBeanHolder implements ApplicationContextAware, DisposableBean
      *
      * @param callBack 回调函数
      */
-    public synchronized static void addCallBacks(SpringBeanHolder.CallBack callBack) {
+    public synchronized static void addCallBacks(CallBack callBack) {
         if (addCallback) {
             SpringBeanHolder.CALL_BACKS.add(callBack);
         } else {
@@ -137,7 +137,7 @@ public class SpringBeanHolder implements ApplicationContextAware, DisposableBean
         }
         SpringBeanHolder.applicationContext = applicationContext;
         if (addCallback) {
-            for (SpringBeanHolder.CallBack callBack : SpringBeanHolder.CALL_BACKS) {
+            for (CallBack callBack : SpringBeanHolder.CALL_BACKS) {
                 callBack.executor();
             }
             CALL_BACKS.clear();

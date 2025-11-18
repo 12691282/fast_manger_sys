@@ -15,16 +15,16 @@
  */
 package me.zhengjie.rest;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.domain.SysLog;
 import me.zhengjie.service.SysLogService;
-import me.zhengjie.service.dto.SysLogQueryCriteria;
-import me.zhengjie.service.dto.SysLogSmallDto;
+import me.zhengjie.domain.dto.SysLogQueryCriteria;
 import me.zhengjie.utils.PageResult;
 import me.zhengjie.utils.SecurityUtils;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,28 +61,32 @@ public class SysLogController {
         criteria.setLogType("ERROR");
         sysLogService.download(sysLogService.queryAll(criteria), response);
     }
+
     @GetMapping
     @ApiOperation("日志查询")
     @PreAuthorize("@el.check()")
-    public ResponseEntity<Object> queryLog(SysLogQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<PageResult<SysLog>> queryLog(SysLogQueryCriteria criteria){
         criteria.setLogType("INFO");
-        return new ResponseEntity<>(sysLogService.queryAll(criteria,pageable), HttpStatus.OK);
+        Page<SysLog> page = new Page<>(criteria.getPage(), criteria.getSize());
+        return new ResponseEntity<>(sysLogService.queryAll(criteria,page), HttpStatus.OK);
     }
 
     @GetMapping(value = "/user")
     @ApiOperation("用户日志查询")
-    public ResponseEntity<PageResult<SysLogSmallDto>> queryUserLog(SysLogQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<PageResult<SysLog>> queryUserLog(SysLogQueryCriteria criteria){
         criteria.setLogType("INFO");
         criteria.setUsername(SecurityUtils.getCurrentUsername());
-        return new ResponseEntity<>(sysLogService.queryAllByUser(criteria,pageable), HttpStatus.OK);
+        Page<SysLog> page = new Page<>(criteria.getPage(), criteria.getSize());
+        return new ResponseEntity<>(sysLogService.queryAllByUser(criteria,page), HttpStatus.OK);
     }
 
     @GetMapping(value = "/error")
     @ApiOperation("错误日志查询")
     @PreAuthorize("@el.check()")
-    public ResponseEntity<Object> queryErrorLog(SysLogQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<PageResult<SysLog>> queryErrorLog(SysLogQueryCriteria criteria){
         criteria.setLogType("ERROR");
-        return new ResponseEntity<>(sysLogService.queryAll(criteria,pageable), HttpStatus.OK);
+        Page<SysLog> page = new Page<>(criteria.getPage(), criteria.getSize());
+        return new ResponseEntity<>(sysLogService.queryAll(criteria,page), HttpStatus.OK);
     }
 
     @GetMapping(value = "/error/{id}")

@@ -15,13 +15,13 @@
  */
 package me.zhengjie.domain;
 
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -29,17 +29,13 @@ import java.sql.Timestamp;
  * @author Zheng Jie
  * @date 2018-11-24
  */
-@Entity
 @Getter
 @Setter
-@Table(name = "sys_log")
 @NoArgsConstructor
-public class SysLog implements Serializable {
+@TableName("sys_log")
+public class SysLog  implements Serializable {
 
-    @Id
-    @Column(name = "log_id")
-    @ApiModelProperty(value = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(value = "log_id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "操作用户")
@@ -70,10 +66,10 @@ public class SysLog implements Serializable {
     private Long time;
 
     @ApiModelProperty(value = "异常详细")
-    private byte[] exceptionDetail;
+    @JSONField(serialize = false)
+    private String exceptionDetail;
 
-    /** 创建日期 */
-    @CreationTimestamp
+    @TableField(fill = FieldFill.INSERT)
     @ApiModelProperty(value = "创建日期：yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp createTime;

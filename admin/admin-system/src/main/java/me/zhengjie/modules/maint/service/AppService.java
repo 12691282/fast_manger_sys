@@ -15,41 +15,38 @@
  */
 package me.zhengjie.modules.maint.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import me.zhengjie.modules.maint.domain.App;
-import me.zhengjie.modules.maint.service.dto.AppDto;
-import me.zhengjie.modules.maint.service.dto.AppQueryCriteria;
+import me.zhengjie.modules.maint.domain.dto.AppQueryCriteria;
 import me.zhengjie.utils.PageResult;
-import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-
-public interface AppService {
+/**
+* @author zhanghouying
+* @date 2019-08-24
+*/
+public interface AppService extends IService<App> {
 
     /**
      * 分页查询
      * @param criteria 条件
-     * @param pageable 分页参数
+     * @param page 分页参数
      * @return /
      */
-    PageResult<AppDto> queryAll(AppQueryCriteria criteria, Pageable pageable);
+    PageResult<App> queryAll(AppQueryCriteria criteria, Page<Object> page);
 
     /**
      * 查询全部数据
+     *
      * @param criteria 条件
      * @return /
      */
-    List<AppDto> queryAll(AppQueryCriteria criteria);
-
-    /**
-     * 根据ID查询
-     * @param id /
-     * @return /
-     */
-    AppDto findById(Long id);
+    List<App> queryAll(AppQueryCriteria criteria);
 
     /**
      * 创建
@@ -71,9 +68,9 @@ public interface AppService {
 
     /**
      * 导出数据
-     * @param queryAll /
+     * @param apps /
      * @param response /
      * @throws IOException /
      */
-    void download(List<AppDto> queryAll, HttpServletResponse response) throws IOException;
+    void download(List<App> apps, HttpServletResponse response) throws IOException;
 }

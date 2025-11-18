@@ -15,26 +15,27 @@
  */
 package me.zhengjie.modules.maint.rest;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.modules.maint.domain.App;
+import me.zhengjie.modules.maint.domain.dto.AppQueryCriteria;
 import me.zhengjie.modules.maint.service.AppService;
-import me.zhengjie.modules.maint.service.dto.AppDto;
-import me.zhengjie.modules.maint.service.dto.AppQueryCriteria;
 import me.zhengjie.utils.PageResult;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
 /**
+* @author zhanghouying
 * @date 2019-08-24
 */
 @RestController
@@ -55,8 +56,9 @@ public class AppController {
     @ApiOperation(value = "查询应用")
     @GetMapping
     @PreAuthorize("@el.check('app:list')")
-    public ResponseEntity<PageResult<AppDto>> queryApp(AppQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(appService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<PageResult<App>> queryApp(AppQueryCriteria criteria){
+        Page<Object> page = new Page<>(criteria.getPage(), criteria.getSize());
+        return new ResponseEntity<>(appService.queryAll(criteria, page),HttpStatus.OK);
     }
 
     @Log("新增应用")

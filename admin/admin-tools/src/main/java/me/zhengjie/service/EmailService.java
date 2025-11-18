@@ -15,14 +15,15 @@
  */
 package me.zhengjie.service;
 
-import me.zhengjie.domain.vo.EmailVo;
+import com.baomidou.mybatisplus.extension.service.IService;
+import me.zhengjie.domain.dto.EmailDto;
 import me.zhengjie.domain.EmailConfig;
 
 /**
  * @author Zheng Jie
  * @date 2018-12-26
  */
-public interface EmailService {
+public interface EmailService extends IService<EmailConfig> {
 
     /**
      * 更新邮件配置
@@ -41,8 +42,8 @@ public interface EmailService {
 
     /**
      * 发送邮件
-     * @param emailVo 邮件发送的内容
+     * @param emailDto 邮件发送的内容
      * @param emailConfig 邮件配置
      */
-    void send(EmailVo emailVo, EmailConfig emailConfig);
+    void send(EmailDto emailDto, EmailConfig emailConfig);
 }

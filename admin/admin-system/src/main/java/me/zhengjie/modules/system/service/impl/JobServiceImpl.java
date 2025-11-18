@@ -15,20 +15,17 @@
  */
 package me.zhengjie.modules.system.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import me.zhengjie.utils.PageResult;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.exception.EntityExistException;
 import me.zhengjie.modules.system.domain.Job;
-import me.zhengjie.modules.system.repository.UserRepository;
-import me.zhengjie.modules.system.service.dto.JobQueryCriteria;
+import me.zhengjie.modules.system.mapper.UserMapper;
+import me.zhengjie.modules.system.domain.dto.JobQueryCriteria;
 import me.zhengjie.utils.*;
-import me.zhengjie.modules.system.repository.JobRepository;
+import me.zhengjie.modules.system.mapper.JobMapper;
 import me.zhengjie.modules.system.service.JobService;
-import me.zhengjie.modules.system.service.dto.JobDto;
-import me.zhengjie.modules.system.service.mapstruct.JobMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
@@ -42,58 +39,53 @@ import java.util.concurrent.TimeUnit;
 */
 @Service
 @RequiredArgsConstructor
-public class JobServiceImpl implements JobService {
+public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements JobService {
 
-    private final JobRepository jobRepository;
     private final JobMapper jobMapper;
     private final RedisUtils redisUtils;
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
-    public PageResult<JobDto> queryAll(JobQueryCriteria criteria, Pageable pageable) {
-        Page<Job> page = jobRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder),pageable);
-        return PageUtil.toPage(page.map(jobMapper::toDto).getContent(),page.getTotalElements());
+    public PageResult<Job> queryAll(JobQueryCriteria criteria, Page<Object> page) {
+        return PageUtil.toPage(jobMapper.findAll(criteria, page));
     }
 
     @Override
-    public List<JobDto> queryAll(JobQueryCriteria criteria) {
-        List<Job> list = jobRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder));
-        return jobMapper.toDto(list);
+    public List<Job> queryAll(JobQueryCriteria criteria) {
+        return jobMapper.findAll(criteria);
     }
 
     @Override
-    public JobDto findById(Long id) {
+    public Job findById(Long id) {
         String key = CacheKey.JOB_ID + id;
         Job job = redisUtils.get(key, Job.class);
         if(job == null){
-            job = jobRepository.findById(id).orElseGet(Job::new);
-            ValidationUtil.isNull(job.getId(),"Job","id",id);
+            job = getById(id);
             redisUtils.set(key, job, 1, TimeUnit.DAYS);
         }
-        return jobMapper.toDto(job);
+        return job;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(Job resources) {
-        Job job = jobRepository.findByName(resources.getName());
+        Job job = jobMapper.findByName(resources.getName());
         if(job != null){
             throw new EntityExistException(Job.class,"name",resources.getName());
         }
-        jobRepository.save(resources);
+        save(resources);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Job resources) {
-        Job job = jobRepository.findById(resources.getId()).orElseGet(Job::new);
-        Job old = jobRepository.findByName(resources.getName());
+        Job job = getById(resources.getId());
+        Job old = jobMapper.findByName(resources.getName());
         if(old != null && !old.getId().equals(resources.getId())){
             throw new EntityExistException(Job.class,"name",resources.getName());
         }
-        ValidationUtil.isNull( job.getId(),"Job","id",resources.getId());
         resources.setId(job.getId());
-        jobRepository.save(resources);
+        saveOrUpdate(resources);
         // 删除缓存
         delCaches(resources.getId());
     }
@@ -101,19 +93,19 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
-        jobRepository.deleteAllByIdIn(ids);
+        removeBatchByIds(ids);
         // 删除缓存
-        redisUtils.delByKeys(CacheKey.JOB_ID, ids);
+        ids.forEach(this::delCaches);
     }
 
     @Override
-    public void download(List<JobDto> jobDtos, HttpServletResponse response) throws IOException {
+    public void download(List<Job> jobs, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
-        for (JobDto jobDTO : jobDtos) {
+        for (Job job : jobs) {
             Map<String,Object> map = new LinkedHashMap<>();
-            map.put("岗位名称", jobDTO.getName());
-            map.put("岗位状态", jobDTO.getEnabled() ? "启用" : "停用");
-            map.put("创建日期", jobDTO.getCreateTime());
+            map.put("岗位名称", job.getName());
+            map.put("岗位状态", job.getEnabled() ? "启用" : "停用");
+            map.put("创建日期", job.getCreateTime());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
@@ -121,15 +113,11 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public void verification(Set<Long> ids) {
-        if(userRepository.countByJobs(ids) > 0){
+        if(userMapper.countByJobs(ids) > 0){
             throw new BadRequestException("所选的岗位中存在用户关联，请解除关联再试！");
         }
     }
 
-    /**
-     * 删除缓存
-     * @param id /
-     */
     public void delCaches(Long id){
         redisUtils.del(CacheKey.JOB_ID + id);
     }

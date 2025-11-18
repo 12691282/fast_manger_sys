@@ -15,24 +15,28 @@
  */
 package me.zhengjie.modules.maint.rest;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.modules.maint.domain.DeployHistory;
+import me.zhengjie.modules.maint.domain.dto.DeployHistoryQueryCriteria;
 import me.zhengjie.modules.maint.service.DeployHistoryService;
-import me.zhengjie.modules.maint.service.dto.DeployHistoryDto;
-import me.zhengjie.modules.maint.service.dto.DeployHistoryQueryCriteria;
 import me.zhengjie.utils.PageResult;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
-
+/**
+* @author zhanghouying
+* @date 2019-08-24
+*/
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "运维：部署历史管理")
@@ -51,8 +55,9 @@ public class DeployHistoryController {
     @ApiOperation(value = "查询部署历史")
     @GetMapping
     @PreAuthorize("@el.check('deployHistory:list')")
-    public ResponseEntity<PageResult<DeployHistoryDto>> queryDeployHistory(DeployHistoryQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(deployhistoryService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<PageResult<DeployHistory>> queryDeployHistory(DeployHistoryQueryCriteria criteria){
+        Page<Object> page = new Page<>(criteria.getPage(), criteria.getSize());
+        return new ResponseEntity<>(deployhistoryService.queryAll(criteria, page),HttpStatus.OK);
     }
 
     @Log("删除DeployHistory")

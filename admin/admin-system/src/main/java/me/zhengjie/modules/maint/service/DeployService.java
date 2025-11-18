@@ -15,42 +15,39 @@
  */
 package me.zhengjie.modules.maint.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import me.zhengjie.modules.maint.domain.Deploy;
 import me.zhengjie.modules.maint.domain.DeployHistory;
-import me.zhengjie.modules.maint.service.dto.DeployDto;
-import me.zhengjie.modules.maint.service.dto.DeployQueryCriteria;
+import me.zhengjie.modules.maint.domain.dto.DeployQueryCriteria;
 import me.zhengjie.utils.PageResult;
-import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-
-public interface DeployService {
+/**
+* @author zhanghouying
+* @date 2019-08-24
+*/
+public interface DeployService extends IService<Deploy> {
 
     /**
      * 分页查询
+     *
      * @param criteria 条件
-     * @param pageable 分页参数
+     * @param page     分页参数
      * @return /
      */
-    PageResult<DeployDto> queryAll(DeployQueryCriteria criteria, Pageable pageable);
+    PageResult<Deploy> queryAll(DeployQueryCriteria criteria, Page<Object> page);
 
     /**
      * 查询全部数据
      * @param criteria 条件
      * @return /
      */
-    List<DeployDto> queryAll(DeployQueryCriteria criteria);
-
-    /**
-     * 根据ID查询
-     * @param id /
-     * @return /
-     */
-    DeployDto findById(Long id);
+    List<Deploy> queryAll(DeployQueryCriteria criteria);
 
     /**
      * 创建
@@ -71,12 +68,12 @@ public interface DeployService {
      */
     void delete(Set<Long> ids);
 
-	/**
-	 * 部署文件到服务器
-	 * @param fileSavePath 文件路径
-	 * @param appId 应用ID
+    /**
+     * 部署服务
+     * @param fileSavePath /
+     * @param appId /
      */
-	void deploy(String fileSavePath, Long appId);
+    void deploy(String fileSavePath, Long appId);
 
     /**
      * 查询部署状态
@@ -110,5 +107,5 @@ public interface DeployService {
      * @param response /
      * @throws IOException /
      */
-    void download(List<DeployDto> queryAll, HttpServletResponse response) throws IOException;
+    void download(List<Deploy> queryAll, HttpServletResponse response) throws IOException;
 }

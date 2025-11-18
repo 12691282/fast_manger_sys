@@ -55,19 +55,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SwaggerConfig {
 
+    @Value("${server.servlet.context-path:}")
+    private String apiPath;
+
     @Value("${jwt.header}")
     private String tokenHeader;
 
     @Value("${swagger.enabled}")
     private Boolean enabled;
 
-    @Value("${server.servlet.context-path:}")
-    private String apiPath;
-
     private final ApplicationContext applicationContext;
 
     @Bean
-    @SuppressWarnings({"unchecked","all"})
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .enable(enabled)
@@ -86,7 +85,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .description("一个简单且易上手的 Spring boot 后台管理框架")
                 .title("ELADMIN 接口文档")
-                .version("2.7")
+                .version("1.1")
                 .build();
     }
 
@@ -131,7 +130,7 @@ public class SwaggerConfig {
      * @return /
      */
     @Bean
-    @SuppressWarnings({"all"})
+    @SuppressWarnings({"unchecked","all"})
     public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
         return new BeanPostProcessor() {
 
@@ -166,4 +165,3 @@ public class SwaggerConfig {
         };
     }
 }
-

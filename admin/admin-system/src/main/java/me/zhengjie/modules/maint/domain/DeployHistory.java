@@ -15,27 +15,28 @@
  */
 package me.zhengjie.modules.maint.domain;
 
-import io.swagger.annotations.ApiModelProperty;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.*;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
+* @author zhanghouying
 * @date 2019-08-24
 */
-@Entity
 @Getter
 @Setter
-@Table(name="mnt_deploy_history")
+@TableName("mnt_deploy_history")
 public class DeployHistory implements Serializable {
 
-    @Id
-    @Column(name = "history_id")
+    @TableId(value = "history_id", type = IdType.AUTO)
     @ApiModelProperty(value = "ID", hidden = true)
     private String id;
 
@@ -45,7 +46,6 @@ public class DeployHistory implements Serializable {
     @ApiModelProperty(value = "IP")
     private String ip;
 
-    @CreationTimestamp
     @ApiModelProperty(value = "部署时间")
     private Timestamp deployDate;
 

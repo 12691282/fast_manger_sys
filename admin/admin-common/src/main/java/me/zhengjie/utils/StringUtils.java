@@ -21,12 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import net.dreamlu.mica.ip2region.core.IpInfo;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * @author Zheng Jie
@@ -231,5 +230,14 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    @SuppressWarnings({"unchecked","all"})
+    public static List<Field> getAllFields(Class clazz, List<Field> fields) {
+        if (clazz != null) {
+            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            getAllFields(clazz.getSuperclass(), fields);
+        }
+        return fields;
     }
 }

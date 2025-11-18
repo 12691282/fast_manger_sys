@@ -1,4 +1,5 @@
 /*
+*  Copyright 2019-2025 Zheng Jie
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -17,9 +18,9 @@ package ${package}.rest;
 import me.zhengjie.annotation.Log;
 import ${package}.domain.${className};
 import ${package}.service.${className}Service;
-import ${package}.service.dto.${className}QueryCriteria;
-import org.springframework.data.domain.Pageable;
+import ${package}.domain.dto.${className}QueryCriteria;
 import lombok.RequiredArgsConstructor;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,11 +29,10 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.*;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.zhengjie.utils.PageResult;
-import ${package}.service.dto.${className}Dto;
 
 /**
-* @website https://eladmin.vip
 * @author ${author}
 * @date ${date}
 **/
@@ -54,8 +54,9 @@ public class ${className}Controller {
     @GetMapping
     @ApiOperation("查询${apiAlias}")
     @PreAuthorize("@el.check('${changeClassName}:list')")
-    public ResponseEntity<PageResult<${className}Dto>> query${className}(${className}QueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(${changeClassName}Service.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<PageResult<${className}>> query${className}(${className}QueryCriteria criteria){
+        Page<Object> page = new Page<>(criteria.getPage(), criteria.getSize());
+        return new ResponseEntity<>(${changeClassName}Service.queryAll(criteria,page),HttpStatus.OK);
     }
 
     @PostMapping
@@ -80,7 +81,7 @@ public class ${className}Controller {
     @Log("删除${apiAlias}")
     @ApiOperation("删除${apiAlias}")
     @PreAuthorize("@el.check('${changeClassName}:del')")
-    public ResponseEntity<Object> delete${className}(@ApiParam(value = "传ID数组[]") @RequestBody ${pkColumnType}[] ids) {
+    public ResponseEntity<Object> delete${className}(@ApiParam(value = "传ID数组[]") @RequestBody List<${pkColumnType}> ids) {
         ${changeClassName}Service.deleteAll(ids);
         return new ResponseEntity<>(HttpStatus.OK);
     }

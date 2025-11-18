@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -74,17 +75,23 @@ public class ConfigurerAdapter implements WebMvcConfigurer {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        // 添加默认的 StringHttpMessageConverter
+        converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         // 配置 FastJsonHttpMessageConverter
-        FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
+        FastJsonHttpMessageConverter fastJsonConverter = new FastJsonHttpMessageConverter();
         List<MediaType> supportMediaTypeList = new ArrayList<>();
         supportMediaTypeList.add(MediaType.APPLICATION_JSON);
         FastJsonConfig config = new FastJsonConfig();
         config.setDateFormat("yyyy-MM-dd HH:mm:ss");
-        // 开启引用检测
-        config.setWriterFeatures(JSONWriter.Feature.ReferenceDetection);
-        converter.setFastJsonConfig(config);
-        converter.setSupportedMediaTypes(supportMediaTypeList);
-        converter.setDefaultCharset(StandardCharsets.UTF_8);
-        converters.add(converter);
+        // 开启引用检测，枚举支持
+        config.setWriterFeatures(
+                JSONWriter.Feature.WriteEnumUsingToString,
+                JSONWriter.Feature.ReferenceDetection
+        );
+        fastJsonConverter.setFastJsonConfig(config);
+        fastJsonConverter.setSupportedMediaTypes(supportMediaTypeList);
+        fastJsonConverter.setDefaultCharset(StandardCharsets.UTF_8);
+        // 将 FastJsonHttpMessageConverter 添加到列表末尾
+        converters.add(fastJsonConverter);
     }
 }

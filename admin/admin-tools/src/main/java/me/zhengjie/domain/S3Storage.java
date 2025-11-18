@@ -15,31 +15,30 @@
 */
 package me.zhengjie.domain;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import io.swagger.annotations.ApiModelProperty;
+import com.baomidou.mybatisplus.annotation.IdType;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import me.zhengjie.base.BaseEntity;
-import javax.persistence.*;
+import cn.hutool.core.bean.BeanUtil;
+import io.swagger.annotations.ApiModelProperty;
+import cn.hutool.core.bean.copier.CopyOptions;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.EqualsAndHashCode;
+import me.zhengjie.base.BaseEntity;
 
 /**
-* @description S3存储实体类
+* @description /
 * @author Zheng Jie
-* @date 2025-06-25
+* @date 2025-06-19
 **/
 @Data
-@Entity
-@Table(name = "tool_s3_storage")
+@TableName("tool_s3_storage")
 @EqualsAndHashCode(callSuper = true)
 public class S3Storage extends BaseEntity implements Serializable {
 
-    @Id
-    @Column(name = "storage_id")
-    @ApiModelProperty(value = "ID", hidden = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(value = "storage_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "主键")
     private Long id;
 
     @NotBlank

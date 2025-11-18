@@ -16,29 +16,30 @@
 package me.zhengjie.service;
 
 import me.zhengjie.domain.S3Storage;
-import me.zhengjie.service.dto.S3StorageQueryCriteria;
-import me.zhengjie.utils.PageResult;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
+import me.zhengjie.domain.dto.S3StorageQueryCriteria;
 import java.util.Map;
+import java.util.List;
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import me.zhengjie.utils.PageResult;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
 * @description 服务接口
 * @author Zheng Jie
-* @date 2025-06-25
+* @date 2025-06-19
 **/
-public interface S3StorageService {
+public interface S3StorageService extends IService<S3Storage> {
 
     /**
     * 查询数据分页
     * @param criteria 条件
-    * @param pageable 分页参数
+    * @param page 分页参数
     * @return PageResult
     */
-    PageResult<S3Storage> queryAll(S3StorageQueryCriteria criteria, Pageable pageable);
+    PageResult<S3Storage> queryAll(S3StorageQueryCriteria criteria, Page<Object> page);
 
     /**
     * 查询所有数据不分页
@@ -73,11 +74,4 @@ public interface S3StorageService {
      * @return S3Storage 对象，包含文件存储信息
      */
     S3Storage upload(MultipartFile file);
-
-    /**
-     * 根据ID获取文件信息
-     * @param id 文件ID
-     * @return S3Storage 对象，包含文件存储信息
-     */
-    S3Storage getById(Long id);
 }

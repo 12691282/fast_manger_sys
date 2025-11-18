@@ -15,32 +15,35 @@
  */
 package me.zhengjie.modules.maint.rest;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.maint.domain.Database;
+import me.zhengjie.modules.maint.domain.dto.DatabaseQueryCriteria;
 import me.zhengjie.modules.maint.service.DatabaseService;
-import me.zhengjie.modules.maint.service.dto.DatabaseDto;
-import me.zhengjie.modules.maint.service.dto.DatabaseQueryCriteria;
 import me.zhengjie.modules.maint.util.SqlUtils;
 import me.zhengjie.utils.FileUtil;
 import me.zhengjie.utils.PageResult;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-
+/**
+* @author zhanghouying
+* @date 2019-08-24
+*/
 @Api(tags = "运维：数据库管理")
 @RestController
 @RequiredArgsConstructor
@@ -60,8 +63,9 @@ public class DatabaseController {
     @ApiOperation(value = "查询数据库")
     @GetMapping
 	@PreAuthorize("@el.check('database:list')")
-    public ResponseEntity<PageResult<DatabaseDto>> queryDatabase(DatabaseQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(databaseService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<PageResult<Database>> queryDatabase(DatabaseQueryCriteria criteria){
+		Page<Object> page = new Page<>(criteria.getPage(), criteria.getSize());
+		return new ResponseEntity<>(databaseService.queryAll(criteria, page),HttpStatus.OK);
     }
 
     @Log("新增数据库")
@@ -105,11 +109,11 @@ public class DatabaseController {
 	@PreAuthorize("@el.check('database:add')")
 	public ResponseEntity<Object> uploadDatabase(@RequestBody MultipartFile file, HttpServletRequest request)throws Exception{
 		String id = request.getParameter("id");
-		DatabaseDto database = databaseService.findById(id);
+		Database database = databaseService.getById(id);
 		String fileName;
 		if(database != null){
 			fileName = FileUtil.verifyFilename(file.getOriginalFilename());
-			File executeFile = new File(fileSavePath + fileName);
+			File executeFile = new File(fileSavePath+fileName);
 			FileUtil.del(executeFile);
 			file.transferTo(executeFile);
 			String result = SqlUtils.executeFile(database.getJdbcUrl(), database.getUserName(), database.getPwd(), executeFile);

@@ -16,14 +16,15 @@
 
 package me.zhengjie.utils;
 
+import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
- * @author: liaojinlong
- * @date: 2020/6/11 16:28
- * @apiNote: JDK 8  新日期类 格式化与字符串转换 工具类
+ * @author liaojinlong
+ * @date 2020/6/11 16:28
+ * @description JDK 8  新日期类 格式化与字符串转换 工具类
  */
 public class DateUtil {
 
@@ -115,6 +116,14 @@ public class DateUtil {
      */
     public static String localDateTimeFormatyMdHms(LocalDateTime localDateTime) {
         return DFY_MD_HMS.format(localDateTime);
+    }
+
+    /**
+     * 获取当前时间
+     * @return 、
+     */
+    public static Timestamp getTimeStamp() {
+        return Timestamp.valueOf(LocalDateTime.now());
     }
 
     /**

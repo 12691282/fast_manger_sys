@@ -16,73 +16,65 @@
 package me.zhengjie.modules.maint.service.impl;
 
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.modules.maint.domain.Database;
-import me.zhengjie.modules.maint.repository.DatabaseRepository;
+import me.zhengjie.modules.maint.domain.dto.DatabaseQueryCriteria;
+import me.zhengjie.modules.maint.mapper.DatabaseMapper;
 import me.zhengjie.modules.maint.service.DatabaseService;
-import me.zhengjie.modules.maint.service.dto.DatabaseDto;
-import me.zhengjie.modules.maint.service.dto.DatabaseQueryCriteria;
-import me.zhengjie.modules.maint.service.mapstruct.DatabaseMapper;
 import me.zhengjie.modules.maint.util.SqlUtils;
-import me.zhengjie.utils.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import me.zhengjie.utils.FileUtil;
+import me.zhengjie.utils.PageResult;
+import me.zhengjie.utils.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
-
+/**
+* @author zhanghouying
+* @date 2019-08-24
+*/
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DatabaseServiceImpl implements DatabaseService {
+public class DatabaseServiceImpl extends ServiceImpl<DatabaseMapper, Database> implements DatabaseService {
 
-    private final DatabaseRepository databaseRepository;
     private final DatabaseMapper databaseMapper;
 
     @Override
-    public PageResult<DatabaseDto> queryAll(DatabaseQueryCriteria criteria, Pageable pageable){
-        Page<Database> page = databaseRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder),pageable);
-        return PageUtil.toPage(page.map(databaseMapper::toDto));
+    public PageResult<Database> queryAll(DatabaseQueryCriteria criteria, Page<Object> page){
+        return PageUtil.toPage(databaseMapper.findAll(criteria, page));
     }
 
     @Override
-    public List<DatabaseDto> queryAll(DatabaseQueryCriteria criteria){
-        return databaseMapper.toDto(databaseRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder)));
-    }
-
-    @Override
-    public DatabaseDto findById(String id) {
-        Database database = databaseRepository.findById(id).orElseGet(Database::new);
-        ValidationUtil.isNull(database.getId(),"Database","id",id);
-        return databaseMapper.toDto(database);
+    public List<Database> queryAll(DatabaseQueryCriteria criteria){
+        return databaseMapper.findAll(criteria);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(Database resources) {
         resources.setId(IdUtil.simpleUUID());
-        databaseRepository.save(resources);
+        save(resources);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Database resources) {
-        Database database = databaseRepository.findById(resources.getId()).orElseGet(Database::new);
-        ValidationUtil.isNull(database.getId(),"Database","id",resources.getId());
+        Database database = getById(resources.getId());
         database.copy(resources);
-        databaseRepository.save(database);
+        saveOrUpdate(database);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<String> ids) {
-        for (String id : ids) {
-            databaseRepository.deleteById(id);
-        }
+        removeBatchByIds(ids);
     }
 
     @Override
@@ -96,14 +88,14 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public void download(List<DatabaseDto> queryAll, HttpServletResponse response) throws IOException {
+    public void download(List<Database> databases, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
-        for (DatabaseDto databaseDto : queryAll) {
+        for (Database database : databases) {
             Map<String,Object> map = new LinkedHashMap<>();
-            map.put("数据库名称", databaseDto.getName());
-            map.put("数据库连接地址", databaseDto.getJdbcUrl());
-            map.put("用户名", databaseDto.getUserName());
-            map.put("创建日期", databaseDto.getCreateTime());
+            map.put("数据库名称", database.getName());
+            map.put("数据库连接地址", database.getJdbcUrl());
+            map.put("用户名", database.getUserName());
+            map.put("创建日期", database.getCreateTime());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

@@ -24,24 +24,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 开启审计功能 -> @EnableJpaAuditing
- *
  * @author Zheng Jie
  * @date 2018/11/15 9:20:19
  */
 @Slf4j
-@EnableAsync
 @RestController
 @Api(hidden = true)
 @SpringBootApplication
 @EnableTransactionManagement
-@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class AppRun {
 
     public static void main(String[] args) {
@@ -64,7 +58,6 @@ public class AppRun {
 
     /**
      * 访问首页提示
-     *
      * @return /
      */
     @AnonymousGetMapping("/")

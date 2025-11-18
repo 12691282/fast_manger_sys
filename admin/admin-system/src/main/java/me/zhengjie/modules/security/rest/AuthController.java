@@ -65,12 +65,13 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Api(tags = "系统：系统授权接口")
 public class AuthController {
+
     private final SecurityProperties properties;
     private final RedisUtils redisUtils;
     private final OnlineUserService onlineUserService;
     private final TokenProvider tokenProvider;
-    private final LoginProperties loginProperties;
     private final CaptchaConfig captchaConfig;
+    private final LoginProperties loginProperties;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -146,7 +147,8 @@ public class AuthController {
     @ApiOperation("退出登录")
     @AnonymousDeleteMapping(value = "/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request) {
-        onlineUserService.logout(tokenProvider.getToken(request));
+        String token = tokenProvider.getToken(request);
+        onlineUserService.logout(token);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
