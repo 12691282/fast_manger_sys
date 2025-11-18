@@ -1,4 +1,4 @@
-package mgr.utils;
+package fangsl.utils;
 
 import org.junit.jupiter.api.Test;
 

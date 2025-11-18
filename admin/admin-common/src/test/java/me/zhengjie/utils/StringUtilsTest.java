@@ -1,4 +1,4 @@
-package mgr.utils;
+package fangsl.utils;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -6,11 +6,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static mgr.utils.StringUtils.getIp;
-import static mgr.utils.StringUtils.getWeekDay;
-import static mgr.utils.StringUtils.toCamelCase;
-import static mgr.utils.StringUtils.toCapitalizeCamelCase;
-import static mgr.utils.StringUtils.toUnderScoreCase;
+import static fangsl.utils.StringUtils.getIp;
+import static fangsl.utils.StringUtils.getWeekDay;
+import static fangsl.utils.StringUtils.toCamelCase;
+import static fangsl.utils.StringUtils.toCapitalizeCamelCase;
+import static fangsl.utils.StringUtils.toUnderScoreCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 

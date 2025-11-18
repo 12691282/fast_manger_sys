@@ -1,8 +1,8 @@
-package mgr.utils;
+package fangsl.utils;
 
 import org.junit.jupiter.api.Test;
 
-import static mgr.utils.EncryptUtils.*;
+import static fangsl.utils.EncryptUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EncryptUtilsTest {
