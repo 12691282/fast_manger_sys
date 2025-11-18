@@ -1,4 +1,4 @@
-package me.zhengjie.utils;
+package mgr.utils;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -6,11 +6,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static me.zhengjie.utils.StringUtils.getIp;
-import static me.zhengjie.utils.StringUtils.getWeekDay;
-import static me.zhengjie.utils.StringUtils.toCamelCase;
-import static me.zhengjie.utils.StringUtils.toCapitalizeCamelCase;
-import static me.zhengjie.utils.StringUtils.toUnderScoreCase;
+import static mgr.utils.StringUtils.getIp;
+import static mgr.utils.StringUtils.getWeekDay;
+import static mgr.utils.StringUtils.toCamelCase;
+import static mgr.utils.StringUtils.toCapitalizeCamelCase;
+import static mgr.utils.StringUtils.toUnderScoreCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 

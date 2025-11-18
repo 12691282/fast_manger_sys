@@ -1,9 +1,9 @@
-package me.zhengjie.utils;
+package mgr.utils;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 
-import static me.zhengjie.utils.FileUtil.*;
+import static mgr.utils.FileUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileUtilTest {
